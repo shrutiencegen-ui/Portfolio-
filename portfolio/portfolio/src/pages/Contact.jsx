@@ -66,7 +66,7 @@ export default function Contact() {
               </span>
             </h2>
             <p className="text-gray-400 text-lg mt-8 max-w-sm leading-relaxed font-light">
-              Hya portfolio sathi me modern tech vaprlay. Tumchya ideas la reality madhe convert karnyachi vel aali aahe.
+             Crafted with a modern tech stack, this portfolio is where your ideas meet reality. Let’s build something extraordinary together.
             </p>
           </div>
 
