@@ -67,7 +67,7 @@ export default function Navbar() {
       if (section) {
         section.scrollIntoView({ behavior: "smooth" });
       }
-    }, 300);
+    }, 200);
   };
 
   return (
@@ -113,10 +113,10 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* HAMBURGER */}
+          {/* HAMBURGER (FIXED TOGGLE) */}
           <button
-            className="md:hidden w-10 h-10 flex items-center justify-center z-[110]"
-            onClick={() => setMobileMenuOpen(true)}
+            className="md:hidden w-10 h-10 flex items-center justify-center z-[200]"
+            onClick={() => setMobileMenuOpen(prev => !prev)}
           >
             <div className="flex flex-col gap-1.5 pointer-events-none">
               <span className="w-6 h-0.5 bg-white" />
@@ -127,7 +127,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* MOBILE MENU */}
+      {/* MOBILE MENU (FIXED OVERLAY) */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -135,14 +135,14 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed top-0 left-0 w-full h-[100dvh] bg-black z-[999] relative flex flex-col items-center justify-center gap-10 overflow-y-auto"
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black z-[150] flex flex-col items-center justify-center gap-10"
           >
 
-            {/* ❌ CLOSE ICON - LEFT SIDE */}
+            {/* CLOSE BUTTON (RIGHT SIDE) */}
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="absolute top-5 right-5 text-white text-4xl font-bold"
+              className="absolute top-5 right-5 text-white text-4xl font-bold z-[200]"
             >
               &times;
             </button>
@@ -152,7 +152,7 @@ export default function Navbar() {
               <motion.button
                 key={link.name}
                 onClick={() => handleNavClick(link.href)}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 className="text-3xl font-black text-white uppercase"
