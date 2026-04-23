@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>portfolio</title>
+    
+  </head>
+  <body>
+    <style>
+  /* White screen prevent karnyathi style */
+  body { background-color: #050505; margin: 0; }
+  #initial-loader {
+    position: fixed; inset: 0; background: #050505;
+    display: flex; justify-content: center; align-items: center; z-index: 99999;
+  }
+  .dot { width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; margin: 0 4px; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+</style>
+
+<div id="initial-loader">
+  <div class="dot"></div>
+  <div class="dot" style="animation-delay: 0.2s"></div>
+  <div class="dot" style="animation-delay: 0.4s"></div>
+</div>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
