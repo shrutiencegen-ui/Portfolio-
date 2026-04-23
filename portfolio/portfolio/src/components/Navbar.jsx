@@ -14,14 +14,14 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Navbar background
+  // scroll background
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Active section
+  // active section
   useEffect(() => {
     const sections = navLinks.map(link =>
       document.getElementById(link.href.substring(1))
@@ -45,12 +45,12 @@ export default function Navbar() {
     };
   }, []);
 
-  // Lock scroll
+  // lock scroll
   useEffect(() => {
     document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
   }, [mobileMenuOpen]);
 
-  // Close on resize
+  // resize close
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) setMobileMenuOpen(false);
@@ -59,7 +59,6 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Smooth scroll AFTER close
   const handleNavClick = (href) => {
     setMobileMenuOpen(false);
 
@@ -68,7 +67,7 @@ export default function Navbar() {
       if (section) {
         section.scrollIntoView({ behavior: "smooth" });
       }
-    }, 400);
+    }, 300);
   };
 
   return (
@@ -116,17 +115,19 @@ export default function Navbar() {
 
           {/* HAMBURGER */}
           <button
-            className="md:hidden w-10 h-10 flex flex-col justify-center items-center gap-1.5 z-[110]"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden w-10 h-10 flex items-center justify-center z-[110]"
+            onClick={() => setMobileMenuOpen(true)}
           >
-            <span className={`w-6 h-0.5 bg-white transition ${mobileMenuOpen ? "rotate-45 translate-y-1.5" : ""}`} />
-            <span className={`w-6 h-0.5 bg-white transition ${mobileMenuOpen ? "opacity-0" : ""}`} />
-            <span className={`w-6 h-0.5 bg-white transition ${mobileMenuOpen ? "-rotate-45 -translate-y-1.5" : ""}`} />
+            <div className="flex flex-col gap-1.5 pointer-events-none">
+              <span className="w-6 h-0.5 bg-white" />
+              <span className="w-6 h-0.5 bg-white" />
+              <span className="w-6 h-0.5 bg-white" />
+            </div>
           </button>
         </div>
       </nav>
 
-      {/* ✅ FULLSCREEN MOBILE MENU (OUTSIDE NAV) */}
+      {/* MOBILE MENU */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -135,8 +136,18 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed top-0 left-0 w-full h-[100dvh] bg-black z-[999] flex flex-col items-center justify-center gap-10 overflow-y-auto"
+            className="fixed top-0 left-0 w-full h-[100dvh] bg-black z-[999] relative flex flex-col items-center justify-center gap-10 overflow-y-auto"
           >
+
+            {/* ❌ CLOSE ICON - LEFT SIDE */}
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="absolute top-5 right-5 text-white text-4xl font-bold"
+            >
+              &times;
+            </button>
+
+            {/* MENU ITEMS */}
             {navLinks.map((link, i) => (
               <motion.button
                 key={link.name}

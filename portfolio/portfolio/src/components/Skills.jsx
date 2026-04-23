@@ -17,26 +17,23 @@ const skills = [
 
 function SkillIcon({ icon, position, name, invert }) {
   return (
-    <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-      {/* Dynamic size factor (6 on mobile, 8 on desktop) */}
-      <Html position={position} center distanceFactor={8} className="md:distance-factor-10"> 
-        <motion.div 
-          whileHover={{ scale: 1.15 }}
-          className="flex flex-col items-center group cursor-pointer"
+    <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.4}>
+      <Html position={position} center distanceFactor={10}>
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          className="flex flex-col items-center cursor-pointer"
         >
-          {/* Card Size Normalized (w-24 h-24) */}
-          <div className="relative w-24 h-24 md:w-32 md:h-32 flex items-center justify-center bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 group-hover:border-blue-500/50 transition-all shadow-2xl">
-            {/* Image Size Normalized (h-16 w-auto) */}
-            <img 
-              src={icon} 
-              alt={name} 
-              className={`max-h-16 w-auto md:max-h-20 object-contain drop-shadow-md ${invert ? 'brightness-200' : ''}`} 
+          <div className="w-20 h-20 md:w-32 md:h-32 flex items-center justify-center bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-lg">
+            <img
+              src={icon}
+              alt={name}
+              className={`max-h-14 md:max-h-20 w-auto object-contain ${
+                invert ? "brightness-200" : ""
+              }`}
             />
-            {/* Contact Shadow Glow */}
-            <div className="absolute inset-0 bg-blue-500/15 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
-          <span className="mt-2 text-[10px] md:text-xs font-bold text-white uppercase tracking-widest bg-black/50 px-3 py-1 rounded-full border border-white/10 opacity-70 group-hover:opacity-100 transition-opacity">
+          <span className="mt-2 text-[10px] md:text-xs text-white font-bold uppercase opacity-70">
             {name}
           </span>
         </motion.div>
@@ -48,81 +45,75 @@ function SkillIcon({ icon, position, name, invert }) {
 export default function SkillsScene() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  // Responsive logic to handle window resize
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const isMobile = windowWidth < 768; // Tailwind md: breakpoint
+  const isMobile = windowWidth < 768;
+
+  // 👉 IMPORTANT: reduce skills on mobile for performance
+  const visibleSkills = isMobile ? skills.slice(0, 5) : skills;
 
   return (
-    <section className="relative w-screen h-screen bg-[#050505] overflow-hidden flex flex-col items-center justify-center px-6">
-      
-      {/* Title Header */}
+    <section className="relative w-screen h-screen bg-[#050505] overflow-hidden flex flex-col items-center justify-center px-4">
+
+      {/* TITLE */}
       <div className="absolute top-16 w-full text-center z-10">
-        <motion.p 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          className="text-blue-500 font-mono tracking-[0.3em] uppercase text-[10px] md:text-xs mb-1"
-        >
+        <motion.p className="text-blue-500 text-[10px] md:text-xs uppercase tracking-widest">
           Technical Proficiency
         </motion.p>
-        <motion.h2 
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="text-5xl md:text-7xl font-black text-white tracking-tighter"
-        >
-          Tech <span className="text-blue-500 underline decoration-blue-500/30">Stack.</span>
+
+        <motion.h2 className="text-4xl md:text-7xl font-black text-white">
+          Tech <span className="text-blue-500">Stack</span>
         </motion.h2>
       </div>
 
-      {/* 3D Canvas Layer */}
-      <Canvas camera={{ position: [0, 0, 15], fov: isMobile ? 50 : 40 }}>
-        <ambientLight intensity={1.2} />
-        <pointLight position={[10, 10, 10]} intensity={1.5} />
-        
-        <group position={[0, -0.5, 0]}>
-          {skills.map((skill, i) => {
-            // ANTI-CLOCKWISE ORBIT CALCULATIONS
-            const totalSkills = skills.length;
-            const angle = (i / totalSkills) * Math.PI * 2;
-            
-            // Dynamic radius based on viewport width
-            const radius = isMobile ? 3.5 : 7.5; 
+      {/* 3D CANVAS */}
+      <Canvas
+        camera={{ position: [0, 0, 15], fov: isMobile ? 55 : 40 }}
+        dpr={isMobile ? 1 : 2}          // 🔥 performance fix
+        frameloop="demand"              // 🔥 reduces continuous render load
+      >
+        <ambientLight intensity={1} />
+        <pointLight position={[10, 10, 10]} intensity={1.2} />
 
-            // x: cos(angle), y: minor movement, z: sin(-angle) = anti-clockwise
+        <group position={[0, -0.5, 0]}>
+          {visibleSkills.map((skill, i) => {
+            const total = visibleSkills.length;
+            const angle = (i / total) * Math.PI * 2;
+            const radius = isMobile ? 3 : 7;
+
             const x = Math.cos(angle) * radius;
-            const y = (Math.random() - 0.5) * 1.5; // Slight organic y variance
-            const z = Math.sin(-angle) * radius; 
+            const y = (Math.random() - 0.5) * 1;
+            const z = Math.sin(-angle) * radius;
 
             return (
-              <SkillIcon 
-                key={i} 
-                icon={skill.icon} 
-                name={skill.name} 
-                position={[x, y, z]} 
+              <SkillIcon
+                key={i}
+                icon={skill.icon}
+                name={skill.name}
+                position={[x, y, z]}
                 invert={skill.invert}
               />
             );
           })}
         </group>
 
-        <OrbitControls 
-          enableZoom={false} 
-          autoRotate 
-          autoRotateSpeed={1.0} // Control the auto-rotation speed
+        <OrbitControls
+          enableZoom={false}
+          autoRotate
+          autoRotateSpeed={isMobile ? 0.5 : 1}
           enablePan={false}
-          // Clamp mouse rotation so they don't see "under" or "over" the scene
           minPolarAngle={Math.PI / 2.2}
           maxPolarAngle={Math.PI / 1.8}
         />
       </Canvas>
 
-      {/* Decorative Text Overlay - Solves the "empty" complaint */}
-      <div className="absolute bottom-10 right-10 opacity-10 pointer-events-none select-none">
-        <h3 className="text-[20vw] font-bold text-white leading-none">EXPERTISE</h3>
+      {/* BACK TEXT */}
+      <div className="absolute bottom-10 right-5 opacity-10 pointer-events-none">
+        <h3 className="text-[20vw] font-bold text-white">EXPERTISE</h3>
       </div>
     </section>
   );
