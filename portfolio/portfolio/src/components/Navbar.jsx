@@ -10,141 +10,148 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const [activeSection, setActiveSection] = useState("");
+  const [activeSection, setActiveSection] = useState("about");
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Navbar background
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-
-      // Detect active section on scroll
-      const sections = navLinks.map(link => link.href.substring(1));
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top >= -300 && rect.top <= 300) {
-            setActiveSection(section);
-          }
-        }
-      }
-    };
-
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Active section
+  useEffect(() => {
+    const sections = navLinks.map(link =>
+      document.getElementById(link.href.substring(1))
+    );
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.6 }
+    );
+
+    sections.forEach(section => section && observer.observe(section));
+
+    return () => {
+      sections.forEach(section => section && observer.unobserve(section));
+    };
+  }, []);
+
+  // Lock scroll
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
+  }, [mobileMenuOpen]);
+
+  // Close on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) setMobileMenuOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Smooth scroll AFTER close
+  const handleNavClick = (href) => {
+    setMobileMenuOpen(false);
+
+    setTimeout(() => {
+      const section = document.getElementById(href.substring(1));
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 400);
+  };
+
   return (
-    <nav 
-      className={`fixed top-0 w-full z-[100] transition-all duration-500 px-6 md:px-12 ${
-        scrolled ? "py-4 bg-black/40 backdrop-blur-xl border-b border-white/10" : "py-8 bg-transparent"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        
-        {/* LOGO: Shruti Jadhav */}
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }} 
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-2 group cursor-pointer"
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        >
-          <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center font-black text-white group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(37,99,235,0.3)]">
-            SJ
+    <>
+      {/* NAVBAR */}
+      <nav
+        className={`fixed top-0 w-full z-[100] transition-all duration-500 px-4 sm:px-6 md:px-12 ${
+          scrolled
+            ? "py-3 bg-black/50 backdrop-blur-xl border-b border-white/10"
+            : "py-6 bg-transparent"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+
+          {/* LOGO */}
+          <div
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-black">
+              SJ
+            </div>
+            <h1 className="text-lg font-black text-white uppercase">
+              Shruti <span className="text-blue-500">J.</span>
+            </h1>
           </div>
-          <h1 className="text-xl font-black text-white tracking-tighter uppercase">
-            Shruti <span className="text-blue-500">J.</span>
-          </h1>
-        </motion.div>
 
-        {/* DESKTOP LINKS: Floating Capsule Style */}
-        <div className="hidden md:flex items-center gap-1 bg-white/5 p-1.5 rounded-full border border-white/10 backdrop-blur-md shadow-2xl">
-          {navLinks.map((link) => {
-            const isActive = activeSection === link.href.substring(1);
-            return (
-              <a
-                key={link.name}
-                href={link.href}
-                className={`relative px-6 py-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 rounded-full ${
-                  isActive ? "text-white" : "text-gray-400 hover:text-white"
-                }`}
-              >
-                {isActive && (
-                  <motion.div 
-                    layoutId="nav-pill"
-                    className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full -z-10 shadow-[0_0_20px_rgba(37,99,235,0.4)]"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
-                )}
-                {link.name}
-              </a>
-            );
-          })}
-        </div>
-
-        {/* MOBILE TOGGLE: Minimalist Icon */}
-        <div className="md:hidden flex items-center">
-          <button 
-            className="relative w-10 h-10 flex flex-col items-center justify-center gap-1.5 z-[110]"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            <motion.div 
-              animate={mobileMenuOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
-              className="w-6 h-0.5 bg-white rounded-full" 
-            />
-            <motion.div 
-              animate={mobileMenuOpen ? { opacity: 0 } : { opacity: 1 }}
-              className="w-6 h-0.5 bg-white rounded-full" 
-            />
-            <motion.div 
-              animate={mobileMenuOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
-              className="w-6 h-0.5 bg-white rounded-full" 
-            />
-          </button>
-        </div>
-      </div>
-
-      {/* MOBILE MENU: Full Screen Overlay */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, clipPath: "circle(0% at 90% 5%)" }}
-            animate={{ opacity: 1, clipPath: "circle(150% at 90% 5%)" }}
-            exit={{ opacity: 0, clipPath: "circle(0% at 90% 5%)" }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 bg-[#050505] z-[100] flex flex-col items-center justify-center gap-8 md:hidden"
-          >
-            <div className="flex flex-col items-center gap-6">
-              {navLinks.map((link, index) => (
-                <motion.a 
+          {/* DESKTOP MENU */}
+          <div className="hidden md:flex gap-2">
+            {navLinks.map((link) => {
+              const isActive = activeSection === link.href.substring(1);
+              return (
+                <button
                   key={link.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 + 0.3 }}
-                  href={link.href} 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-4xl font-black text-white hover:text-blue-500 transition-colors uppercase tracking-tighter"
+                  onClick={() => handleNavClick(link.href)}
+                  className={`px-4 py-2 text-xs uppercase ${
+                    isActive ? "text-white" : "text-gray-400"
+                  }`}
                 >
                   {link.name}
-                </motion.a>
-              ))}
-            </div>
-            
-            {/* Social Links for Mobile */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="absolute bottom-12 flex gap-8 text-gray-500 font-mono text-xs tracking-widest"
-            >
-              <span>GITHUB</span>
-              <span>LINKEDIN</span>
-              <span>TWITTER</span>
-            </motion.div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* HAMBURGER */}
+          <button
+            className="md:hidden w-10 h-10 flex flex-col justify-center items-center gap-1.5 z-[110]"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            <span className={`w-6 h-0.5 bg-white transition ${mobileMenuOpen ? "rotate-45 translate-y-1.5" : ""}`} />
+            <span className={`w-6 h-0.5 bg-white transition ${mobileMenuOpen ? "opacity-0" : ""}`} />
+            <span className={`w-6 h-0.5 bg-white transition ${mobileMenuOpen ? "-rotate-45 -translate-y-1.5" : ""}`} />
+          </button>
+        </div>
+      </nav>
+
+      {/* ✅ FULLSCREEN MOBILE MENU (OUTSIDE NAV) */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            key="mobile-menu"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-0 left-0 w-full h-[100dvh] bg-black z-[999] flex flex-col items-center justify-center gap-10 overflow-y-auto"
+          >
+            {navLinks.map((link, i) => (
+              <motion.button
+                key={link.name}
+                onClick={() => handleNavClick(link.href)}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="text-3xl font-black text-white uppercase"
+              >
+                {link.name}
+              </motion.button>
+            ))}
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 }

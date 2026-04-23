@@ -1,4 +1,4 @@
-import { useState } from "react"; // useState import kelay
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Components Imports
@@ -16,8 +16,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   return (
-    <div className="bg-[#050505]">
-      {/* 1. PreLoader Logic */}
+    <div className="bg-[#050505] min-h-screen">
       <AnimatePresence mode="wait">
         {loading ? (
           <PreLoader key="loader" onFinish={() => setLoading(false)} />
@@ -26,44 +25,64 @@ export default function App() {
             key="main-content"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-            className="bg-[#050505] text-white relative"
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="relative w-full"
           >
-            {/* 2. Navigation */}
             <Navbar />
 
-            {/* 3. HERO SECTION (With Robot Scene) */}
-            <section className="relative w-full h-screen overflow-hidden">
+            {/* --- 1. HERO SECTION (Robot ithech rahil) --- */}
+            <section 
+              id="hero" 
+              className="relative w-full h-screen overflow-hidden bg-transparent"
+            >
+              {/* Robot Scene - Background la */}
               <div className="absolute inset-0 z-0">
                 <CanvasScene />
               </div>
-              <div className="relative z-10" id="hero">
+
+              {/* Hero Text Content - Robot chya upar */}
+              <div className="relative z-10 w-full h-full">
                 <Hero />
               </div>
             </section>
 
-            {/* 4. ABOUT SECTION */}
-            <section className="relative w-full min-h-screen bg-[#080808] z-20" id="about">
+            {/* --- 2. ABOUT SECTION (Solid Background mule robot hide hoil) --- */}
+            <section 
+              id="about" 
+              className="relative w-full min-h-screen bg-[#050505] z-20 shadow-[0_-20px_50px_rgba(0,0,0,0.9)]"
+            >
               <About />
             </section>
 
-            {/* 5. SKILLS SECTION */}
-            <section className="relative w-full min-h-screen bg-[#050505] z-20" id="skills">
+            {/* --- 3. SKILLS SECTION --- */}
+            <section 
+              id="skills" 
+              className="relative w-full min-h-screen bg-[#050505] z-20"
+            >
               <Skills />
             </section>
 
-            {/* 6. EXPERIENCE SECTION */}
-            <section id="experience" className="relative w-full z-20">
+            {/* --- 4. EXPERIENCE SECTION --- */}
+            <section 
+              id="experience" 
+              className="relative w-full bg-[#050505] z-20"
+            >
               <Experience />
             </section>
 
-            {/* 7. PROJECTS SECTION */}
-            <section id="projects" className="relative w-full z-20">
+            {/* --- 5. PROJECTS SECTION --- */}
+            <section 
+              id="projects" 
+              className="relative w-full bg-[#050505] z-20"
+            >
               <Projects />
             </section>
 
-            {/* 8. CONTACT SECTION */}
-            <section id="contact" className="relative w-full z-20">
+            {/* --- 6. CONTACT SECTION --- */}
+            <section 
+              id="contact" 
+              className="relative w-full bg-[#050505] z-20"
+            >
               <Contact />
             </section>
 

@@ -1,16 +1,50 @@
 import { motion } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useEffect, useRef, useState } from "react";
 import RobotModel from "../three/RobotModel";
 
 export default function Hero() {
 
-  // ✅ Responsive scale (clean way)
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const heroRef = useRef();
+
+  // ✅ visibility control
+  const [isVisible, setIsVisible] = useState(true);
+
+  // ✅ responsive detection (FIXED)
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const robotScale = useMemo(() => (isMobile ? 0.75 : 1), [isMobile]);
 
+  // ✅ detect hero visibility (MAIN FIX)
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.2 }
+    );
+
+    if (heroRef.current) observer.observe(heroRef.current);
+
+    return () => {
+      if (heroRef.current) observer.unobserve(heroRef.current);
+    };
+  }, []);
+
   return (
-    <section className="relative w-full h-screen bg-[#050505] overflow-hidden flex flex-col justify-center">
+    <section
+      ref={heroRef}
+      className="relative w-full h-[100dvh] bg-[#050505] overflow-hidden flex flex-col justify-center"
+    >
       
       {/* BACKGROUND TEXT */}
       <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none z-0">
@@ -19,49 +53,39 @@ export default function Hero() {
         </h2>
       </div>
 
-      {/* 🤖 PERFECT CENTER ROBOT (FIXED POSITION) */}
+      {/* 🤖 ROBOT (FIXED) */}
       <div className="absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 pointer-events-none w-full max-w-4xl h-[60vh] md:h-[80vh] opacity-80 md:opacity-100">
         
-        <Canvas camera={{ position: [0, 0, 5], fov: 35 }}>
-          
-          {/* ✅ Loader instead of null (NO DISAPPEAR) */}
-          <Suspense fallback={
-            <mesh>
-              <sphereGeometry args={[0.6, 32, 32]} />
-              <meshStandardMaterial color="#3b82f6" wireframe />
-            </mesh>
-          }>
+        <Canvas
+          camera={{ position: [0, 0, 5], fov: 35 }}
+          frameloop="always"
+          dpr={[1, 1.5]}
+          gl={{ preserveDrawingBuffer: true }}
+        >
+          <Suspense fallback={null}>
             
             {/* LIGHTS */}
             <ambientLight intensity={2} />
-            <spotLight 
-              position={[10, 10, 10]} 
-              angle={0.15} 
-              penumbra={1} 
-              intensity={2} 
-              color="#3b82f6" 
-            />
-            <pointLight 
-              position={[-10, -10, -10]} 
-              intensity={1.5} 
-              color="#8b5cf6" 
-            />
+            <spotLight position={[10, 10, 10]} intensity={2} />
+            <pointLight position={[-10, -10, -10]} intensity={1.5} />
 
-            {/* 🤖 Animated Robot */}
-            <motion.group
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1.2, ease: "easeOut" }}
-              position={[0, -0.8, 0]}
-            >
-              <RobotModel scale={robotScale} />
-            </motion.group>
+            {/* ✅ SHOW ONLY WHEN HERO IS VISIBLE */}
+            {isVisible && (
+              <motion.group
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 1.2 }}
+                position={[0, -0.8, 0]}
+              >
+                <RobotModel scale={robotScale} />
+              </motion.group>
+            )}
 
           </Suspense>
         </Canvas>
       </div>
 
-      {/* CONTENT GRID */}
+      {/* ✅ YOUR ORIGINAL CONTENT (UNCHANGED) */}
       <div className="relative z-20 w-full px-6 md:px-20 grid grid-cols-1 md:grid-cols-3 items-center h-full pt-20 md:pt-0 gap-10 md:gap-0">
         
         {/* LEFT */}
@@ -89,18 +113,18 @@ export default function Hero() {
             <span className="text-white font-medium"> React, Node.js, Express.js, Django, Flask</span> & interactive 3D experiences.
           </p>
 
-                  <a href="#projects">
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-8 py-3 bg-white text-black font-black uppercase text-[10px] rounded-full transition-all"
-          >
-            My Projects
-          </motion.button>
-        </a>
+          <a href="#projects">
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-3 bg-white text-black font-black uppercase text-[10px] rounded-full"
+            >
+              My Projects
+            </motion.button>
+          </a>
         </motion.div>
 
-        {/* MIDDLE SPACE */}
+        {/* MIDDLE */}
         <div className="hidden md:block" />
 
         {/* RIGHT */}
@@ -111,7 +135,7 @@ export default function Hero() {
           className="flex flex-col items-center md:items-end space-y-12"
         >
           <div className="text-center md:text-right group">
-            <h3 className="text-5xl md:text-7xl font-black text-white group-hover:text-blue-500 transition-colors tracking-tighter italic">
+            <h3 className="text-5xl md:text-7xl font-black text-white group-hover:text-blue-500 transition">
               6+
             </h3>
             <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.4em] font-bold">
@@ -120,7 +144,7 @@ export default function Hero() {
           </div>
           
           <div className="text-center md:text-right group">
-            <h3 className="text-5xl md:text-7xl font-black text-white group-hover:text-purple-500 transition-colors tracking-tighter italic">
+            <h3 className="text-5xl md:text-7xl font-black text-white group-hover:text-purple-500 transition">
               11+
             </h3>
             <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.4em] font-bold">

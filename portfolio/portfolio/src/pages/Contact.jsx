@@ -73,7 +73,7 @@ export default function Contact() {
           {/* CONTACT PILLS */}
           <div className="space-y-6">
             {[
-              { label: "Email", value: "shruti.jadhav1411@gmail.com", icon: "📧" },
+              { label: "Email", value: "shrutijadhav1411@gmail.com", icon: "📧" },
               { label: "Location", value: "Pune, Maharashtra", icon: "📍" }
             ].map((info, i) => (
               <motion.div 

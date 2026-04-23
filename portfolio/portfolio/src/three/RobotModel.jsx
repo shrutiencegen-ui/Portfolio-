@@ -17,7 +17,7 @@ export default function RobotModel({ scale = 1, ...props }) {
       action
         .reset()
         .fadeIn(0.5)
-        .setLoop(THREE.LoopRepeat, Infinity) // 🔁 continuous loop
+        .setLoop(THREE.LoopRepeat, Infinity)
         .play();
     }
 
@@ -28,10 +28,10 @@ export default function RobotModel({ scale = 1, ...props }) {
 
   return (
     <group ref={group} {...props}>
-      <primitive 
+      <primitive
         object={scene}
-        scale={scale} // ✅ scale control parent kade
-        position={[0, -1.2, 0]} 
+        scale={scale}
+        position={[0, -1.2, 0]}
       />
     </group>
   );
